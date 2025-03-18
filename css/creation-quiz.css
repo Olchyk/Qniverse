@@ -1,0 +1,92 @@
+.question {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.question label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.question input[type="text"],
+.question select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.answer-options {
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+.choice-row {
+  margin-bottom: 5px;
+}
+
+.choice-row label {
+  display: inline-block;
+  width: 80px; /* Щоб варіанти вирівнювалися */
+}
+
+.choice-row input[type="text"] {
+  width: calc(100% - 90px); /* З урахуванням місця для лейбла та кнопки */
+  padding: 5px;
+}
+
+.remove-question-button,
+.remove-choice-button,
+#add-question-button,
+#submit-button {
+  padding: 8px 15px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+/* Стилі для верхньої навігації */
+.top-navigation {
+  margin-bottom: 20px; /* Відступ від верхньої частини до заголовка */
+}
+
+.back-button {
+  display: inline-block; /* Щоб можна було задати padding та інші блокові властивості */
+  padding: 10px 20px;
+  background-color: #f0f0f0; /* Сірий фон, можна змінити */
+  color: #333; /* Колір тексту, можна змінити */
+  text-decoration: none; /* Прибираємо підкреслення посилання */
+  border: 1px solid #ccc; /* Рамка, можна змінити */
+  border-radius: 5px; /* Заокруглені кути, можна змінити */
+  cursor: pointer; /* Змінюємо курсор на "руку" при наведенні */
+}
+
+.back-button:hover {
+  background-color: #e0e0e0; /* Трохи світліший фон при наведенні */
+}
+.correct-answer-indicator {
+  display: inline-flex; /* Розміщуємо лейбл та чекбокс/радіо кнопку в ряд */
+  align-items: center; /* Вирівнюємо по вертикалі */
+  margin-left: 15px; /* Відступ зліва від текстового поля варіанту */
+}
+
+.correct-answer-indicator label {
+  margin-right: 5px; /* Відступ між лейблом та чекбоксом/радіо */
+  font-weight: normal; /* Звичайний шрифт лейбла */
+}
+.correct-answer-text-container {
+  margin-top: 10px; /* Відступ зверху від контейнера варіантів відповідей */
+}
+
+.correct-answer-text-container label {
+  display: block; /* Лейбл на окремому рядку */
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.correct-answer-text-container input[type="text"] {
+  width: 100%; /* Розтягуємо поле вводу на всю ширину контейнера */
+  padding: 8px;
+  box-sizing: border-box; /* Щоб padding не збільшував ширину */
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Пройти Опитувальник</title>
+    <link rel="stylesheet" href="./css/run-questionnaire.css" />
+    <!-- Підключимо CSS файл пізніше -->
+  </head>
+  <body>
+    <div class="container">
+      <h1>Пройти Опитувальник</h1>
+      <div id="question-container">
+        <!-- Тут буде відображатися питання та варіанти відповідей -->
+      </div>
+      <div id="navigation-buttons">
+        <button id="prev-button" disabled>Попереднє питання</button>
+        <button id="next-button">Наступне питання</button>
+        <button id="submit-button" style="display: none">
+          Завершити опитування
+        </button>
+      </div>
+      <div id="results-container" style="display: none">
+        <h2>Ваші відповіді та час проходження</h2>
+        <div id="answers-display">
+          <!-- Тут будуть показані відповіді користувача -->
+        </div>
+        <p id="completion-time"></p>
+        <button id="go-home-button">На головну сторінку</button>
+      </div>
+    </div>
+
+    <script src="./js/run-questionnaire.js"></script>
+  </body>
+</html>

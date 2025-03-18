@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Конструктор Опитувальників</title>
+    <link rel="stylesheet" href="./css/creation-quiz.css" />
+  </head>
+  <body>
+    <div class="top-navigation">
+      <a href="index.html" class="back-button">Повернутися на головну</a>
+    </div>
+    <h1>Створити Опитувальник</h1>
+
+    <div>
+      <label for="quiz-title">Назва опитувальника:</label>
+      <input
+        type="text"
+        id="quiz-title"
+        placeholder="Введіть назву опитувальника"
+      />
+    </div>
+
+    <div>
+      <label for="quiz-description">Короткий опис:</label>
+      <textarea
+        id="quiz-description"
+        placeholder="Введіть короткий опис"
+      ></textarea>
+    </div>
+
+    <div id="questionnaire-container">
+      <!-- Тут будуть додаватися питання -->
+    </div>
+    <button id="add-question-button">Додати питання</button>
+    <button id="submit-button">Зберегти Опитувальник</button>
+
+    <script src="./js/creation-question.js"></script>
+  </body>
+</html>

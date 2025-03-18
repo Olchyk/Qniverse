@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((data) => {
         console.log("Отримані дані від сервера:", data);
 
-        // **Оновлена перевірка отриманих даних**
         if (!Array.isArray(data)) {
           console.error("Некоректні дані від сервера (очікував масив):", data);
           heroSection.innerHTML = "<p>Помилка отримання опитувальників.</p>";
@@ -33,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        heroSection.innerHTML = ""; // Очищаємо після отримання
+        heroSection.innerHTML = "";
 
         if (data.length === 0) {
           heroSection.innerHTML =
@@ -94,9 +93,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setupPagination(totalPages, currentPage) {
     const paginationContainer = document.getElementById("pagination-container");
-    paginationContainer.innerHTML = ""; // Очищуємо попередню пагінацію
+    paginationContainer.innerHTML = "";
 
-    if (!totalPages || totalPages <= 1) return; // Якщо сторінка одна, не показуємо
+    if (!totalPages || totalPages <= 1) return;
 
     for (let i = 1; i <= totalPages; i++) {
       const pageButton = document.createElement("button");
@@ -211,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
         heroSection.innerHTML = "<p>Опитувальники відсутні.</p>";
       }
 
-      heroSection.style.display = "block"; // Показуємо контент після завантаження
+      heroSection.style.display = "block";
     })
     .catch((error) => {
       console.error("Помилка завантаження:", error);
@@ -244,11 +243,10 @@ function attachMenuEventListeners() {
     });
   });
 
-  // Додаємо обробники для кнопок "Edit", "Run", "Delete" в кожному випадаючому меню
   document.querySelectorAll(".dropdown-menu ul").forEach((menuList) => {
-    const questionnaireCard = menuList.closest(".quiz-container"); // Знаходимо батьківську картку опитувальника
+    const questionnaireCard = menuList.closest(".quiz-container");
     const questionnaireId =
-      questionnaireCard.querySelector(".quiz-card").dataset.questionnaireId; // Отримуємо ID з data-атрибута
+      questionnaireCard.querySelector(".quiz-card").dataset.questionnaireId;
 
     menuList.addEventListener("click", function (event) {
       const target = event.target;
@@ -263,10 +261,9 @@ function attachMenuEventListeners() {
           const runUrl = `run-questionnaire.html?id=${questionnaireId}`;
           window.location.href = runUrl;
         } else if (action === "Delete") {
-          handleDeleteQuestionnaire(questionnaireId, questionnaireCard); // Викликаємо функцію для видалення
+          handleDeleteQuestionnaire(questionnaireId, questionnaireCard);
         }
 
-        // Закриваємо меню після вибору дії
         menuList.closest(".dropdown-menu").classList.remove("menu-visible");
       }
     });
@@ -283,8 +280,7 @@ function handleDeleteQuestionnaire(questionnaireId, questionnaireCard) {
           console.log(
             `Questionnaire ID ${questionnaireId} deleted successfully.`
           );
-          questionnaireCard.remove(); // Видаляємо картку опитувальника з DOM
-          // Можна оновити список опитувальників повністю, або просто видалити картку з DOM
+          questionnaireCard.remove();
         } else {
           console.error("Failed to delete questionnaire.");
           alert("Помилка видалення опитувальника.");

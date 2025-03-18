@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("submitButton:", submitButton);
   console.log("Сторінка завантажена. Можна працювати.");
 
-  let questionCounter = 0; // Лічильник питань для ID (не для відображення)
+  let questionCounter = 0;
 
   addQuestionButton.addEventListener("click", addQuestion);
   submitButton.addEventListener("click", submitQuestionnaire);
@@ -54,23 +54,22 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     const correctAnswerTextContainer = questionDiv.querySelector(
       ".correct-answer-text-container"
-    ); // Отримуємо контейнер для текстової відповіді
+    );
 
     questionTypeSelect.addEventListener("change", () => {
-      const selectedQuestionType = questionTypeSelect.value; // Отримуємо вибраний тип питання
+      const selectedQuestionType = questionTypeSelect.value;
       updateAnswerOptions(
-        selectedQuestionType, // Передаємо вибраний тип в updateAnswerOptions
+        selectedQuestionType,
         answerOptionsDiv,
         questionCounter
       );
-      // Показуємо/приховуємо контейнери для відповідей та правильної відповіді в залежності від вибраного типу питання
       correctAnswerTextContainer.style.display =
         selectedQuestionType === "text" ? "block" : "none";
       answerOptionsDiv.style.display =
         selectedQuestionType === "single-choice" ||
         selectedQuestionType === "multiple-choice"
           ? "block"
-          : "none"; // Показуємо answerOptionsDiv для вибору
+          : "none";
     });
 
     removeQuestionButton.addEventListener("click", () => {
@@ -190,9 +189,8 @@ document.addEventListener("DOMContentLoaded", () => {
       questionnaireData.questions.push(questionData);
     });
 
-    // Для сторінки створення опитувальника ЗАВЖДИ використовуємо POST метод та URL для створення нового опитувальника
-    const method = "POST"; // Завжди POST для створення нового
-    const apiUrl = "http://localhost:3000/api/questionnaires"; // URL для створення нового опитувальника
+    const method = "POST";
+    const apiUrl = "http://localhost:3000/api/questionnaires";
 
     fetch(apiUrl, {
       method: method,
@@ -205,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((data) => {
         console.log("Success:", data);
         alert("Опитувальник успішно збережено!");
-        window.location.href = "index.html"; // Перенаправляємо на головну сторінку після успішного створення
+        window.location.href = "index.html";
       })
       .catch((error) => {
         console.error("Error:", error);

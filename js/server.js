@@ -33,7 +33,6 @@ app.post("/api/questionnaires", async (req, res) => {
       );
       const questionId = questionResult.rows[0].id;
 
-      // Якщо це текстове питання, зберігаємо правильну відповідь
       if (question.type === "text" && question.correctAnswers.length > 0) {
         await pool.query(
           "INSERT INTO correct_answers (question_id, text) VALUES ($1, $2)",
@@ -59,7 +58,6 @@ app.post("/api/questionnaires", async (req, res) => {
   }
 });
 
-// API endpoint для отримання всіх опитувальників
 app.get("/api/questionnaires", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM questionnaires");

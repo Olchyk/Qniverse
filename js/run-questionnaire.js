@@ -9,29 +9,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const navigationButtons = document.getElementById("navigation-buttons");
   console.log("navigationButtons:", navigationButtons);
 
-  let questionnaireId; // ID опитувальника, який проходимо
-  let questions = []; // Масив питань опитувальника
-  let currentQuestionIndex = 0; // Індекс поточного питання
-  let userAnswers = {}; // Об'єкт для зберігання відповідей користувача
-  let startTime; // Час початку проходження опитування
+  let questionnaireId;
+  let questions = [];
+  let currentQuestionIndex = 0;
+  let userAnswers = {};
+  let startTime;
 
-  // Функція для завантаження питань опитувальника з backend
   function loadQuestionnaire() {
     startTime = new Date();
 
     const urlParams = new URLSearchParams(window.location.search);
-    questionnaireId = urlParams.get("id"); // Отримуємо ID опитувальника з URL
+    questionnaireId = urlParams.get("id");
 
     if (questionnaireId) {
       fetch(
         `http://localhost:3000/api/questionnaires/${questionnaireId}/questions`
-      ) // Створимо цей endpoint на backend
+      )
         .then((response) => response.json())
         .then((data) => {
           questions = data;
           if (questions.length > 0) {
-            startTime = new Date(); // Фіксуємо час початку опитування
-            displayQuestion(); // Відображаємо перше питання
+            startTime = new Date();
+            displayQuestion();
           } else {
             questionContainer.innerHTML =
               "<p>В опитувальнику немає питань.</p>";
@@ -62,13 +61,11 @@ document.addEventListener("DOMContentLoaded", () => {
     answerOptionsContainer.classList.add("answer-options");
 
     if (questionData.type === "text") {
-      // Текстове питання
       const textInput = document.createElement("input");
       textInput.type = "text";
       textInput.classList.add("text-answer-input");
       if (userAnswers[questionData.id]) {
-        // Перевіряємо, чи є відповідь в userAnswers
-        textInput.value = userAnswers[questionData.id]; // Якщо є, заповнюємо поле вводу попередньою відповіддю
+        textInput.value = userAnswers[questionData.id];
       }
       textInput.addEventListener("change", (event) => {
         userAnswers[questionData.id] = event.target.value;
@@ -78,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
       questionData.type === "single-choice" ||
       questionData.type === "multiple-choice"
     ) {
-      // Питання з вибором варіантів
       fetch(`http://localhost:3000/api/questions/${questionData.id}/answers`)
         .then((response) => response.json())
         .then((answerOptions) => {
@@ -93,8 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
               choiceInput.name = `question-${currentQuestionIndex}`;
               choiceInput.value = answerText;
               if (userAnswers[questionData.id] === answerText) {
-                // Перевіряємо, чи цей варіант був обраний раніше
-                choiceInput.checked = true; // Якщо так, робимо radio кнопку обраною
+                choiceInput.checked = true;
               }
               choiceInput.addEventListener("change", (event) => {
                 userAnswers[questionData.id] = event.target.value;
@@ -107,8 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 Array.isArray(userAnswers[questionData.id]) &&
                 userAnswers[questionData.id].includes(answerText)
               ) {
-                // Перевіряємо, чи цей варіант був обраний раніше (для множинного вибору)
-                choiceInput.checked = true; // Якщо так, робимо checkbox відміченим
+                choiceInput.checked = true;
               }
               choiceInput.addEventListener("change", (event) => {
                 if (!userAnswers[questionData.id]) {
@@ -140,16 +134,14 @@ document.addEventListener("DOMContentLoaded", () => {
     updateNavigationButtons();
   }
 
-  // Функція для оновлення стану кнопок "Попереднє" та "Наступне"
   function updateNavigationButtons() {
-    prevButton.disabled = currentQuestionIndex === 0; // Кнопка "Попереднє" вимкнена на першому питанні
+    prevButton.disabled = currentQuestionIndex === 0;
     nextButton.style.display =
-      currentQuestionIndex < questions.length - 1 ? "inline-block" : "none"; // "Наступне" показується, якщо не останнє питання
+      currentQuestionIndex < questions.length - 1 ? "inline-block" : "none";
     submitButton.style.display =
-      currentQuestionIndex === questions.length - 1 ? "inline-block" : "none"; // "Завершити" показується на останньому питанні
+      currentQuestionIndex === questions.length - 1 ? "inline-block" : "none";
   }
 
-  // Обробники подій для кнопок навігації
   prevButton.addEventListener("click", () => {
     if (currentQuestionIndex > 0) {
       currentQuestionIndex--;
@@ -196,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((response) => response.json())
       .then((data) => {
         console.log("Responses saved:", data);
-        displayResults(timeTaken); // Показуємо результати на сторінці
+        displayResults(timeTaken);
       })
       .catch((error) => {
         console.error("Error submitting responses:", error);
@@ -205,11 +197,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function displayResults(timeTaken) {
-    questionContainer.style.display = "none"; // Приховуємо питання
-    navigationButtons.style.display = "none"; // Приховуємо кнопки навігації
-    submitButton.style.display = "none"; // Приховуємо кнопку "Завершити опитування"
-    resultsContainer.style.display = "block"; // Показуємо контейнер результатів
-    displayAnswersInResults(timeTaken); // Викликаємо окрему функцію для відображення відповідей
+    questionContainer.style.display = "none";
+    navigationButtons.style.display = "none";
+    submitButton.style.display = "none";
+    resultsContainer.style.display = "block";
+    displayAnswersInResults(timeTaken);
   }
 
   function displayAnswersInResults(timeTaken) {
@@ -235,16 +227,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
           console.log(
             `Питання ${index + 1} (ID: ${question.id}, Тип: ${question.type}):`
-          ); // Розширений лог питання
-          console.log("  Текст питання:", question.text); // Текст питання
+          );
+          console.log("  Текст питання:", question.text);
           console.log(
             "  Відповідь користувача (userAnswerText):",
             userAnswerText
-          ); // Відповідь користувача
+          );
           console.log(
             "  Правильні відповіді (correctAnswers):",
             correctAnswers
-          ); // Правильні відповіді
+          );
 
           if (question.type === "text") {
             isCorrect = correctAnswers.some(
@@ -253,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 correctAnswer.toLowerCase().trim() ===
                   userAnswerText.toLowerCase().trim()
             );
-            console.log("  Тип питання: Текст, isCorrect:", isCorrect); // Лог для текстових питань
+            console.log("  Тип питання: Текст, isCorrect:", isCorrect);
           } else if (question.type === "single-choice") {
             isCorrect = correctAnswers.includes(userAnswerText);
             console.log(
@@ -277,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ); // Лог для множинного вибору
           }
 
-          console.log("  Результат isCorrect для питання:", isCorrect); // Загальний результат isCorrect
+          console.log("  Результат isCorrect для питання:", isCorrect);
 
           let questionResultHTML = `<p><b>${index + 1}. ${
             question.text
@@ -313,11 +305,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const goHomeButton = document.getElementById("go-home-button"); // Отримуємо кнопку "На головну сторінку"
+  const goHomeButton = document.getElementById("go-home-button");
 
   goHomeButton.addEventListener("click", () => {
-    window.location.href = "index.html"; // Перенаправлення на головну сторінку при кліку на кнопку
+    window.location.href = "index.html";
   });
 
-  loadQuestionnaire(); // Викликаємо функцію завантаження опитувальника при завантаженні сторінки
+  loadQuestionnaire();
 });

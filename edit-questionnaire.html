@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Конструктор Опитувальників</title>
+    <title>Survey Builder</title>
     <link rel="stylesheet" href="./css/creation-quiz.css" />
   </head>
   <body>
     <div class="top-navigation">
-      <a href="index.html" class="back-button">Повернутися на головну</a>
+      <a href="index.html" class="back-button">Return to Home</a>
     </div>
-    <h1>Редагувати Опитувальник</h1>
+    <h1>Edit Survey</h1>
 
     <div>
-      <label for="quiz-title">Назва опитувальника:</label>
+      <label for="quiz-title">Survey Title:</label>
       <input
         type="text"
         id="quiz-title"
@@ -20,18 +20,16 @@
     </div>
 
     <div>
-      <label for="quiz-description">Короткий опис:</label>
+      <label for="quiz-description">Short Description:</label>
       <textarea
         id="quiz-description"
         placeholder="Введіть короткий опис"
       ></textarea>
     </div>
 
-    <div id="questionnaire-container">
-      <!-- Тут будуть додаватися питання -->
-    </div>
-    <button id="add-question-button">Додати питання</button>
-    <button id="submit-button">Зберегти Опитувальник</button>
+    <div id="questionnaire-container"></div>
+    <button id="add-question-button">Add Question</button>
+    <button id="submit-button">Save Survey</button>
 
     <script src="./js/edit-questionnaire.js"></script>
   </body>

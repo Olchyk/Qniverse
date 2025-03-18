@@ -1,62 +1,62 @@
-# Qniverse - Конструктор Опитувальників
+# Qniverse - Questionnaire Builder - level Base
 
-**Qniverse** - це веб-додаток, що дозволяє користувачам створювати власні опитувальники (тести) з різними типами питань: текстові відповіді, одиночний вибір та множинний вибір. Після створення опитувальники зберігаються в базі даних, їх можна запускати для проходження, редагувати та видаляти.
+**Qniverse** is a web application that allows users to create their own questionnaires (quizzes) with various question types: text input, single choice, and multiple choice. Once created, questionnaires are stored in a database and can be run for users to take, edited, and deleted.
 
-## Технології
+## Technologies
 
-Проєкт Qniverse розроблений з використанням наступних технологій:
+The Qniverse project is built using the following technologies:
 
 **Frontend:**
 
-*   **HTML:**  Для структури веб-сторінок.
-*   **CSS:**  Для стилізації інтерфейсу користувача.
-*   **JavaScript:**  Для інтерактивності та динамічної логіки на стороні клієнта.
-*   **htmx:**  Для покращення інтерактивності та роботи з сервером (хоча в даній версії htmx не використовується активно).
+*   **HTML:** For structuring web pages.
+*   **CSS:** For styling the user interface.
+*   **JavaScript:** For client-side interactivity and dynamic logic.
+*   **htmx:** For enhancing interactivity and server communication (though not actively used in the current version).
 
 **Backend:**
 
-*   **Node.js:**  Серверне середовище виконання JavaScript.
-*   **Express:**  Фреймворк для Node.js для створення веб-застосунків та API.
-*   **PostgreSQL:**  Реляційна база даних для зберігання опитувальників та відповідей користувачів.
-*   **pg (node-postgres):**  Node.js драйвер для підключення до PostgreSQL.
+*   **Node.js:** JavaScript runtime environment for the server-side.
+*   **Express:** Node.js framework for building web applications and APIs.
+*   **PostgreSQL:** Relational database for storing questionnaires and user responses.
+*   **pg (node-postgres):** Node.js driver for connecting to PostgreSQL.
 
-## Інструкція по запуску
+## Instructions to Run
 
-Щоб запустити проєкт Qniverse на своєму локальному комп'ютері, виконайте наступні кроки:
+To run the Qniverse project on your local machine, follow these steps:
 
-### Передумови
+### Prerequisites
 
-Перед початком переконайтеся, що на вашому комп'ютері встановлено наступне програмне забезпечення:
+Before you begin, ensure you have the following software installed on your computer:
 
-*   **Node.js** (з npm - менеджером пакетів Node.js) - [Завантажити Node.js](https://nodejs.org/)
-*   **PostgreSQL** - [Завантажити PostgreSQL](https://www.postgresql.org/download/)
-*   **pgAdmin** (опціонально, але рекомендовано) - [Завантажити pgAdmin](https://www.pgadmin.org/download/) - графічний інтерфейс для управління PostgreSQL.
+*   **Node.js** (with npm - Node.js package manager) - [Download Node.js](https://nodejs.org/)
+*   **PostgreSQL** - [Download PostgreSQL](https://www.postgresql.org/download/)
+*   **pgAdmin** (optional, but recommended) - [Download pgAdmin](https://www.pgadmin.org/download/) - a graphical interface for PostgreSQL management.
 
-### Встановлення
+### Installation
 
-1.  **Клонуйте репозиторій Qniverse з GitHub:**
+1.  **Clone the Qniverse repository from GitHub:**
 
     ```bash
-    git clone <адреса_твого_репозиторію>
+    git clone <your_repository_address>
     cd Qniverse
     ```
 
-2.  **Перейдіть до папки `backend` та встановіть backend залежності:**
+2.  **Navigate to the `backend` folder and install backend dependencies:**
 
     ```bash
     cd backend
     npm install
     ```
 
-3.  **Створіть базу даних PostgreSQL `questionnaire_db`:**
+3.  **Create a PostgreSQL database named `questionnaire_db`:**
 
-    *   Запустіть pgAdmin (або використовуйте командний рядок `psql`).
-    *   Створіть нову базу даних з назвою `questionnaire_db`.
+    *   Launch pgAdmin (or use the `psql` command-line tool).
+    *   Create a new database named `questionnaire_db`.
 
-4.  **Створіть таблиці в базі даних `questionnaire_db`:**
+4.  **Create tables in the `questionnaire_db` database:**
 
-    *   Відкрийте Query Tool для бази даних `questionnaire_db` в pgAdmin (або використовуйте `psql`).
-    *   Виконайте SQL код для створення таблиць (скопіюйте та вставте наступний код у Query Tool та виконайте):
+    *   Open the Query Tool for the `questionnaire_db` database in pgAdmin (or use `psql`).
+    *   Execute the SQL code to create tables (copy and paste the following code into the Query Tool and execute):
 
     ```sql
     CREATE TABLE questionnaires (
@@ -93,63 +93,63 @@
     );
     ```
 
-5.  **Налаштуйте підключення до бази даних у файлі `backend/server.js`:**
+5.  **Configure database connection in `backend/server.js`:**
 
-    *   Відкрийте файл `backend/server.js` у текстовому редакторі.
-    *   Знайдіть блок коду конфігурації `Pool` (підключення до PostgreSQL):
+    *   Open the `backend/server.js` file in a text editor.
+    *   Locate the `Pool` configuration block (PostgreSQL connection):
 
     ```javascript
     const pool = new Pool({
-        user: 'postgres', // Замініть на свого користувача PostgreSQL, якщо потрібно
+        user: 'postgres', // Replace with your PostgreSQL user if needed
         host: 'localhost',
-        database: 'questionnaire_db', // Назва твоєї бази даних
-        password: 'your_password', // Замініть на свій пароль postgres
+        database: 'questionnaire_db', // Your database name
+        password: 'your_password', // Replace with your postgres password
         port: 5432,
     });
     ```
 
-    *   **Замініть значення `user`, `password`, та `database` на свої власні налаштування PostgreSQL**, якщо вони відрізняються від стандартних.  **Особливо важливо правильно вказати пароль, який ви задали для користувача `postgres` (або іншого користувача PostgreSQL).**
+    *   **Replace the values for `user`, `password`, and `database` with your own PostgreSQL settings**, if they differ from the defaults. **It is crucial to correctly specify the password you set for the `postgres` user (or another PostgreSQL user).**
 
-### Запуск застосунку
+### Running the Application
 
-1.  **Запустіть backend сервер:**
+1.  **Start the backend server:**
 
-    *   Відкрийте командний рядок або термінал.
-    *   Перейдіть до папки `backend`: `cd Qniverse/backend`.
-    *   Запустіть сервер командою: `node server.js`.
-    *   Ви повинні побачити повідомлення в консолі: `Backend server listening at http://localhost:3000`.
+    *   Open a command prompt or terminal.
+    *   Navigate to the `backend` folder: `cd Qniverse/backend`.
+    *   Run the server using the command: `node server.js`.
+    *   You should see a message in the console: `Backend server listening at http://localhost:3000`.
 
-2.  **Відкрийте frontend в браузері:**
+2.  **Open the frontend in your browser:**
 
-    *   Відкрийте свій веб-браузер (наприклад, Chrome, Firefox, Safari).
-    *   Введіть в адресний рядок шлях до файлу `index.html` на вашому комп'ютері.  **Найпростіший спосіб - відкрити файл `index.html` безпосередньо через браузер:**
-        *   Знайдіть файл `index.html` в папці `Qniverse` через файловий менеджер.
-        *   Перетягніть файл `index.html` у вікно браузера або клікніть правою кнопкою миші на файлі `index.html` та виберіть "Відкрити за допомогою" і виберіть свій браузер.
+    *   Open your web browser (e.g., Chrome, Firefox, Safari).
+    *   Enter the file path to the `index.html` file on your computer in the address bar. **The easiest way is to open the `index.html` file directly through your browser:**
+        *   Locate the `index.html` file in the `Qniverse` folder using your file explorer.
+        *   Drag and drop the `index.html` file into the browser window or right-click on the `index.html` file and select "Open With" and choose your browser.
 
-    *   Головна сторінка Qniverse повинна відкритися у браузері.
+    *   The Qniverse homepage should open in your browser.
 
-## Використання
+## Usage
 
-**Створення опитувальника:**
+**Creating a Questionnaire:**
 
-1.  На головній сторінці натисніть кнопку "Створити новий опитувальник".
-2.  На сторінці "Створити Опитувальник" введіть назву та опис опитувальника.
-3.  Додавайте питання, натискаючи кнопку "Додати питання".
-4.  Для кожного питання:
-    *   Введіть текст питання.
-    *   Виберіть тип питання (Текст, Одиночний вибір, Множинний вибір).
-    *   Для питань з вибором варіантів:
-        *   Додавайте варіанти відповідей, натискаючи "Додати варіант".
-        *   Позначте правильні варіанти відповідей, використовуючи радіо кнопки (для одиночного вибору) або чекбокси (для множинного вибору) "Правильна відповідь:".
-    *   Для текстових питань:
-        *   Введіть правильну відповідь у полі "Правильна відповідь:".
-5.  Натисніть кнопку "Зберегти Опитувальник", щоб зберегти створений опитувальник в базі даних.
+1.  On the homepage, click the "Create new questionnaire" button.
+2.  On the "Create Questionnaire" page, enter the title and description of the questionnaire.
+3.  Add questions by clicking the "Add question" button.
+4.  For each question:
+    *   Enter the question text.
+    *   Select the question type (Text, Single choice, Multiple choice).
+    *   For choice-based questions:
+        *   Add answer options by clicking "Add option".
+        *   Mark the correct answer options using the radio buttons (for single choice) or checkboxes (for multiple choice) labeled "Correct Answer:".
+    *   For text-based questions:
+        *   Enter the correct answer in the "Correct Answer:" field.
+5.  Click the "Save Questionnaire" button to store the created questionnaire in the database.
 
-**Перегляд та проходження опитувальників:**
+**Viewing and Taking Questionnaires:**
 
-*   На головній сторінці відображається список створених опитувальників.
-*   **Run:** Натисніть "Run" у випадаючому меню біля опитувальника, щоб пройти опитування. Пройдіть питання, відповідаючи на них, і натисніть "Завершити опитування" на останньому питанні, щоб побачити результати.
-*   **Edit:** Натисніть "Edit" у випадаючому меню, щоб відредагувати існуючий опитувальник.
-*   **Delete:** Натисніть "Delete" у випадаючому меню, щоб видалити опитувальник (потрібно буде підтвердити видалення).
+*   The homepage displays a list of created questionnaires.
+*   **Run:** Click "Run" in the dropdown menu next to a questionnaire to take the quiz. Answer the questions and click "Submit Questionnaire" on the last question to see your results.
+*   **Edit:** Click "Edit" in the dropdown menu to edit an existing questionnaire.
+*   **Delete:** Click "Delete" in the dropdown menu to delete a questionnaire (you will need to confirm deletion).
 
-**Дякую за використання Qniverse!**
+**Thank you for using Qniverse!**

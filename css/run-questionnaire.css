@@ -57,3 +57,121 @@
   font-style: italic; /* Курсив для повідомлення "Відповідь не обрано" */
   color: gray;
 }
+
+/* Глобальні стилі */
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  background: #fde7dc;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Контейнер всього опитувальника */
+.container {
+  background: white;
+  width: 500px;
+  max-width: 90%;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+}
+
+/* Заголовок */
+h1 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Контейнер питання */
+#question-container {
+  margin-bottom: 20px;
+}
+
+/* Варіанти відповідей */
+.option {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  background: #fff6f1;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-align: left;
+  font-size: 16px;
+}
+
+.option:hover {
+  border-color: #d1735b;
+}
+
+/* Виділений варіант */
+.option.selected {
+  background: white;
+  border-color: #d1735b;
+  font-weight: bold;
+}
+
+/* Кнопки навігації */
+#navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* Стилі для кнопок */
+button {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* Кнопки "Наступне питання" та "Завершити опитування" */
+#next-button,
+#submit-button {
+  background: #d1735b;
+  color: white;
+}
+
+#next-button:hover,
+#submit-button:hover {
+  background: #b85e4c;
+}
+
+/* Кнопка "Попереднє питання" */
+#prev-button {
+  background: transparent;
+  color: #777;
+}
+
+#prev-button:hover {
+  color: #000;
+}
+
+/* Контейнер з результатами */
+#results-container {
+  display: none;
+  text-align: center;
+}
+
+/* Кнопка "На головну" */
+#go-home-button {
+  margin-top: 15px;
+  background: #f0a07c;
+  color: white;
+}
+
+#go-home-button:hover {
+  background: #d17e60;
+}

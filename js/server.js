@@ -10,11 +10,24 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "questionnaire_db",
-  password: "root",
+  user: "questionnaire_db_aq0y_user",
+  host: "dpg-cvdugvdsvqrc73f5mnr0-a.oregon-postgres.render.com",
+  database: "questionnaire_db_aq0y",
+  password: "944xGtpJUBSGkJxrnnkwJumuvDKOWdQi",
   port: 5432,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+
+module.exports = pool;
+
+pool.query("SELECT NOW()", (err, res) => {
+  if (err) {
+    console.error("Error connecting to the database:", err);
+  } else {
+    console.log("The database is connected! Current time:", res.rows[0]);
+  }
 });
 
 app.post("/api/questionnaires", async (req, res) => {
@@ -68,35 +81,55 @@ app.get("/api/questionnaires", async (req, res) => {
   }
 });
 
-// API endpoint для отримання всіх опитувальників з кількістю питань
 app.get("/api/questionnaires-with-counts", async (req, res) => {
   try {
+    let { page, limit } = req.query;
+    page = parseInt(page, 10) || 1;
+    limit = parseInt(limit, 10) || 5;
+
+    const offset = (page - 1) * limit;
+
+    console.log(
+      `We ask for questionnaires: page=${page}, limit=${limit}, offset=${offset}`
+    );
+
+    const totalCountResult = await pool.query(
+      "SELECT COUNT(*) FROM questionnaires"
+    );
+    const totalCount = parseInt(totalCountResult.rows[0].count, 10);
+    const totalPages = Math.ceil(totalCount / limit);
+
     const questionnairesResult = await pool.query(
-      "SELECT id, title, description FROM questionnaires"
+      "SELECT id, title, description FROM questionnaires ORDER BY id LIMIT $1 OFFSET $2",
+      [limit, offset]
     );
     const questionnaires = questionnairesResult.rows;
 
-    const questionnairesWithCounts = [];
-    for (const questionnaire of questionnaires) {
-      const questionsCountResult = await pool.query(
-        "SELECT COUNT(*) FROM questions WHERE questionnaire_id = $1",
-        [questionnaire.id]
-      );
-      const questionsCount = parseInt(questionsCountResult.rows[0].count, 10); // Перетворюємо count в число
-      questionnairesWithCounts.push({
-        id: questionnaire.id,
-        title: questionnaire.title,
-        description: questionnaire.description,
-        questionsCount: questionsCount,
-      });
-    }
+    const questionnairesWithCounts = await Promise.all(
+      questionnaires.map(async (questionnaire) => {
+        const questionsCountResult = await pool.query(
+          "SELECT COUNT(*) FROM questions WHERE questionnaire_id = $1",
+          [questionnaire.id]
+        );
+        const questionsCount = parseInt(questionsCountResult.rows[0].count, 10);
 
-    res.status(200).send(questionnairesWithCounts);
+        return {
+          id: questionnaire.id,
+          title: questionnaire.title,
+          description: questionnaire.description,
+          questionsCount: questionsCount,
+        };
+      })
+    );
+
+    res.status(200).send({
+      questionnaires: questionnairesWithCounts,
+      totalPages: totalPages,
+      currentPage: page,
+    });
   } catch (error) {
-    console.error("Error fetching questionnaires with counts:", error);
-    res
-      .status(500)
-      .send({ error: "Failed to fetch questionnaires with counts" });
+    console.error("Error receiving questionnaires:", error);
+    res.status(500).send({ error: "We could not get the questionnaires" });
   }
 });
 
@@ -104,28 +137,24 @@ app.delete("/api/questionnaires/:id", async (req, res) => {
   const questionnaireId = req.params.id;
   try {
     console.log(
-      "Видалення відповідей користувачів для опитувальника ID:",
+      "Delete user responses for the ID questionnaire:",
       questionnaireId
-    ); // Доданий console.log перед запитом
+    );
 
-    // 1. Видалити записи з таблиці answers, пов'язані з питаннями опитувальника
     await pool.query(
       "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE questionnaire_id = $1)",
       [questionnaireId]
     );
 
-    // 2. Видалити відповіді користувачів (user_responses), пов'язані з питаннями цього опитувальника
     await pool.query(
       "DELETE FROM user_responses WHERE question_id IN (SELECT id FROM questions WHERE questionnaire_id = $1)",
       [questionnaireId]
     );
 
-    // 3. Видалити питання, пов'язані з опитувальником
     await pool.query("DELETE FROM questions WHERE questionnaire_id = $1", [
       questionnaireId,
     ]);
 
-    // 4. Видалити сам опитувальник
     const questionnaireResult = await pool.query(
       "DELETE FROM questionnaires WHERE id = $1",
       [questionnaireId]
@@ -134,20 +163,19 @@ app.delete("/api/questionnaires/:id", async (req, res) => {
     if (questionnaireResult.rowCount > 0) {
       res.status(200).send({ message: "Questionnaire deleted successfully!" });
     } else {
-      res.status(404).send({ error: "Questionnaire not found" }); // Якщо опитувальник не знайдено
+      res.status(404).send({ error: "Questionnaire not found" });
     }
 
     console.log(
-      "Відповіді користувачів видалено для опитувальника ID:",
+      "User responses have been deleted for the ID questionnaire:",
       questionnaireId
-    ); // Доданий console.log після запиту
+    );
   } catch (error) {
     console.error("Error deleting questionnaire:", error);
     res.status(500).send({ error: "Failed to delete questionnaire" });
   }
 });
 
-// API endpoint для отримання опитувальника для редагування разом з питаннями та відповідями
 app.get("/api/questionnaires/:id/edit", async (req, res) => {
   const questionnaireId = req.params.id;
   try {
@@ -169,19 +197,29 @@ app.get("/api/questionnaires/:id/edit", async (req, res) => {
 
     for (const question of questions) {
       const answersResult = await pool.query(
-        "SELECT text FROM answers WHERE question_id = $1",
+        "SELECT id, text FROM answers WHERE question_id = $1",
         [question.id]
       );
       question.answers = answersResult.rows.map((row) => row.text);
 
-      // Fetch correct answers for each question
-      const correctAnswersResult = await pool.query(
-        "SELECT text FROM correct_answers WHERE question_id = $1",
-        [question.id]
-      );
-      question.correctAnswers = correctAnswersResult.rows.map(
-        (row) => row.text
-      ); // Add correctAnswers to question object
+      if (
+        question.type === "single-choice" ||
+        question.type === "multiple-choice"
+      ) {
+        const correctAnswersResult = await pool.query(
+          `SELECT text FROM correct_answers WHERE question_id = $1`,
+          [question.id]
+        );
+        question.correctAnswers = correctAnswersResult.rows.map(
+          (row) => row.text
+        );
+        console.log(
+          `Правильні відповіді для питання "${question.text}":`,
+          question.correctAnswers
+        );
+      } else {
+        question.correctAnswers = [];
+      }
     }
 
     const questionnaireData = {
@@ -212,26 +250,31 @@ app.put("/api/questionnaires/:id", async (req, res) => {
       ]
     );
 
-    // Видаляємо старі відповіді перед оновленням
-    await pool.query(
-      "DELETE FROM correct_answers WHERE question_id IN (SELECT id FROM questions WHERE questionnaire_id = $1)",
-      [questionnaireId]
-    );
-    await pool.query(
-      "DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE questionnaire_id = $1)",
-      [questionnaireId]
-    );
-    await pool.query("DELETE FROM questions WHERE questionnaire_id = $1", [
-      questionnaireId,
-    ]);
-
-    // Додаємо оновлені питання та відповіді
     for (const question of updatedQuestionnaireData.questions) {
-      const questionResult = await pool.query(
-        "INSERT INTO questions (questionnaire_id, text, type) VALUES ($1, $2, $3) RETURNING id",
-        [questionnaireId, question.text, question.type]
-      );
-      const questionId = questionResult.rows[0].id;
+      let questionId = question.id;
+
+      if (!questionId) {
+        // Якщо це нове питання, вставляємо його
+        const questionResult = await pool.query(
+          "INSERT INTO questions (questionnaire_id, text, type) VALUES ($1, $2, $3) RETURNING id",
+          [questionnaireId, question.text, question.type]
+        );
+        questionId = questionResult.rows[0].id;
+      } else {
+        // Якщо питання вже існує, оновлюємо його
+        await pool.query(
+          "UPDATE questions SET text = $1, type = $2 WHERE id = $3",
+          [question.text, question.type, questionId]
+        );
+
+        // Видаляємо старі відповіді перед оновленням
+        await pool.query("DELETE FROM correct_answers WHERE question_id = $1", [
+          questionId,
+        ]);
+        await pool.query("DELETE FROM answers WHERE question_id = $1", [
+          questionId,
+        ]);
+      }
 
       if (question.type === "text" && question.correctAnswers.length > 0) {
         await pool.query(
@@ -240,10 +283,18 @@ app.put("/api/questionnaires/:id", async (req, res) => {
         );
       } else if (question.answers && question.answers.length > 0) {
         for (const answerText of question.answers) {
-          await pool.query(
-            "INSERT INTO answers (question_id, text) VALUES ($1, $2)",
+          const answerResult = await pool.query(
+            "INSERT INTO answers (question_id, text) VALUES ($1, $2) RETURNING id",
             [questionId, answerText]
           );
+          const answerId = answerResult.rows[0].id;
+
+          if (question.correctAnswers.includes(answerText)) {
+            await pool.query(
+              "INSERT INTO correct_answers (question_id, text) VALUES ($1, $2)",
+              [questionId, answerText]
+            );
+          }
         }
       }
     }
@@ -255,14 +306,13 @@ app.put("/api/questionnaires/:id", async (req, res) => {
   }
 });
 
-// API endpoint для отримання питань опитувальника за ID
 app.get("/api/questionnaires/:id/questions", async (req, res) => {
   const questionnaireId = req.params.id;
   try {
     const questionsResult = await pool.query(
       "SELECT id, text, type FROM questions WHERE questionnaire_id = $1 ORDER BY id ASC",
       [questionnaireId]
-    ); // Отримуємо питання в порядку ID
+    );
     const questions = questionsResult.rows;
     res.status(200).send(questions);
   } catch (error) {
@@ -272,7 +322,6 @@ app.get("/api/questionnaires/:id/questions", async (req, res) => {
       .send({ error: "Failed to fetch questions for questionnaire" });
   }
 });
-// API endpoint для отримання варіантів відповідей для конкретного питання
 app.get("/api/questions/:id/answers", async (req, res) => {
   const questionId = req.params.id;
   try {
@@ -280,18 +329,18 @@ app.get("/api/questions/:id/answers", async (req, res) => {
       "SELECT text FROM answers WHERE question_id = $1",
       [questionId]
     );
-    const answers = answersResult.rows.map((row) => row.text); // Отримуємо тільки текст варіантів
+    const answers = answersResult.rows.map((row) => row.text);
     res.status(200).send(answers);
   } catch (error) {
     console.error("Error fetching answers for question:", error);
     res.status(500).send({ error: "Failed to fetch answers for question" });
   }
 });
-// API endpoint для збереження відповідей користувача після проходження опитувальника
+
 app.post("/api/questionnaires/:id/submit", async (req, res) => {
   const questionnaireId = req.params.id;
-  const userResponsesData = req.body.responses; // Очікуємо масив відповідей від frontend
-  const completionTime = req.body.completionTime; // Отримуємо час завершення
+  const userResponsesData = req.body.responses;
+  const completionTime = req.body.completionTime;
 
   if (!userResponsesData || !Array.isArray(userResponsesData)) {
     return res.status(400).send({ error: "Invalid responses data" });
@@ -301,12 +350,7 @@ app.post("/api/questionnaires/:id/submit", async (req, res) => {
     for (const response of userResponsesData) {
       await pool.query(
         "INSERT INTO user_responses (questionnaire_id, question_id, user_answer, completion_time) VALUES ($1, $2, $3, $4)",
-        [
-          questionnaireId,
-          response.questionId,
-          response.answer,
-          completionTime, // Зберігаємо час завершення для кожної відповіді (можна і для всього опитування)
-        ]
+        [questionnaireId, response.questionId, response.answer, completionTime]
       );
     }
 
@@ -317,7 +361,6 @@ app.post("/api/questionnaires/:id/submit", async (req, res) => {
   }
 });
 
-// API endpoint для отримання правильних відповідей для конкретного питання
 app.get("/api/questions/:id/correct-answers", async (req, res) => {
   const questionId = req.params.id;
   try {
@@ -325,7 +368,7 @@ app.get("/api/questions/:id/correct-answers", async (req, res) => {
       "SELECT text FROM correct_answers WHERE question_id = $1",
       [questionId]
     );
-    const correctAnswers = correctAnswersResult.rows.map((row) => row.text); // Отримуємо тільки текст правильних відповідей
+    const correctAnswers = correctAnswersResult.rows.map((row) => row.text);
     res.status(200).send(correctAnswers);
   } catch (error) {
     console.error("Error fetching correct answers for question:", error);
@@ -343,21 +386,18 @@ app.get("/api/questionnaires-with-counts", async (req, res) => {
 
     const offset = (page - 1) * limit;
 
-    // Отримання загальної кількості записів
     const totalCountResult = await pool.query(
       "SELECT COUNT(*) FROM questionnaires"
     );
     const totalCount = parseInt(totalCountResult.rows[0].count, 10);
     const totalPages = Math.ceil(totalCount / limit);
 
-    // Отримання списку опитувальників з пагінацією
     const questionnairesResult = await pool.query(
       "SELECT id, title, description FROM questionnaires ORDER BY id LIMIT $1 OFFSET $2",
       [limit, offset]
     );
     const questionnaires = questionnairesResult.rows;
 
-    // Додаємо кількість питань
     const questionnairesWithCounts = await Promise.all(
       questionnaires.map(async (questionnaire) => {
         const questionsCountResult = await pool.query(
@@ -375,15 +415,14 @@ app.get("/api/questionnaires-with-counts", async (req, res) => {
       })
     );
 
-    // **Тепер повертаємо ОБ'ЄКТ, а не масив**
     res.status(200).send({
       questionnaires: questionnairesWithCounts,
       totalPages,
       currentPage: page,
     });
   } catch (error) {
-    console.error("Помилка отримання опитувальників:", error);
-    res.status(500).send({ error: "Не вдалося отримати опитувальники" });
+    console.error("Error receiving questionnaires:", error);
+    res.status(500).send({ error: "We could not get the questionnaires" });
   }
 });
 

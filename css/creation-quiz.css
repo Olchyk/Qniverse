@@ -1,92 +1,107 @@
-.question {
-  border: 1px solid #ccc;
+/* Глобальні стилі */
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  background: #dab0dd;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* Контейнер форми */
+.container {
+  background: #e4c2e7;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  max-width: 90%;
+  text-align: center;
+}
+
+/* Заголовок */
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4b086d;
+}
+
+/* Стилі для текстових полів */
+input[type="text"],
+textarea,
+select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #af6fc2;
+  background: #f8e6f9;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+/* Стилі для питання */
+.question-container {
+  background: white;
   padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
   margin-bottom: 15px;
 }
 
-.question label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.question input[type="text"],
-.question select {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  box-sizing: border-box;
-}
-
-.answer-options {
+/* Стилі для відповідей */
+.answer-container {
   margin-top: 10px;
-  padding-left: 20px;
 }
 
-.choice-row {
-  margin-bottom: 5px;
-}
-
-.choice-row label {
+.answer-container input[type="text"] {
+  width: calc(100% - 50px);
   display: inline-block;
-  width: 80px; /* Щоб варіанти вирівнювалися */
 }
 
-.choice-row input[type="text"] {
-  width: calc(100% - 90px); /* З урахуванням місця для лейбла та кнопки */
-  padding: 5px;
-}
-
-.remove-question-button,
-.remove-choice-button,
-#add-question-button,
-#submit-button {
-  padding: 8px 15px;
+.remove-question,
+.remove-answer {
+  background: #d1735b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
   cursor: pointer;
-  margin-top: 5px;
 }
 
-/* Стилі для верхньої навігації */
-.top-navigation {
-  margin-bottom: 20px; /* Відступ від верхньої частини до заголовка */
+.remove-question:hover,
+.remove-answer:hover {
+  background: #b85e4c;
 }
 
-.back-button {
-  display: inline-block; /* Щоб можна було задати padding та інші блокові властивості */
-  padding: 10px 20px;
-  background-color: #f0f0f0; /* Сірий фон, можна змінити */
-  color: #333; /* Колір тексту, можна змінити */
-  text-decoration: none; /* Прибираємо підкреслення посилання */
-  border: 1px solid #ccc; /* Рамка, можна змінити */
-  border-radius: 5px; /* Заокруглені кути, можна змінити */
-  cursor: pointer; /* Змінюємо курсор на "руку" при наведенні */
+/* Кнопки додавання */
+button {
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 10px;
 }
 
-.back-button:hover {
-  background-color: #e0e0e0; /* Трохи світліший фон при наведенні */
-}
-.correct-answer-indicator {
-  display: inline-flex; /* Розміщуємо лейбл та чекбокс/радіо кнопку в ряд */
-  align-items: center; /* Вирівнюємо по вертикалі */
-  margin-left: 15px; /* Відступ зліва від текстового поля варіанту */
+#add-question-button {
+  background: #a658bf;
+  color: white;
 }
 
-.correct-answer-indicator label {
-  margin-right: 5px; /* Відступ між лейблом та чекбоксом/радіо */
-  font-weight: normal; /* Звичайний шрифт лейбла */
-}
-.correct-answer-text-container {
-  margin-top: 10px; /* Відступ зверху від контейнера варіантів відповідей */
+#add-question-button:hover {
+  background: #8e4aa1;
 }
 
-.correct-answer-text-container label {
-  display: block; /* Лейбл на окремому рядку */
-  margin-bottom: 5px;
-  font-weight: bold;
+#submit-button {
+  background: #4b086d;
+  color: white;
 }
 
-.correct-answer-text-container input[type="text"] {
-  width: 100%; /* Розтягуємо поле вводу на всю ширину контейнера */
-  padding: 8px;
-  box-sizing: border-box; /* Щоб padding не збільшував ширину */
+#submit-button:hover {
+  background: #390550;
 }

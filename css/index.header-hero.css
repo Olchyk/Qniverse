@@ -1,162 +1,166 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(
-      217deg,
-      rgba(227, 121, 217, 0.8),
-      rgba(123, 68, 113, 0) 70.71%
-    ),
-    linear-gradient(127deg, rgba(217, 186, 226, 0.8), rgba(0, 255, 0, 0) 70.71%),
-    linear-gradient(336deg, rgba(246, 183, 234, 0.8), rgba(0, 0, 255, 0) 70.71%);
-
+  font-family: "Arial", sans-serif;
+  background: linear-gradient(to bottom, #99dad0, #f2d2f7);
   color: #333;
   display: flex;
   flex-direction: column;
-  min-height: 72vh;
-  margin: 200px 100px 0px;
-}
-
-/* header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  min-height: 100vh;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-} */
-
-/* .user-info {
-  display: flex;
-  align-items: center;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}*/
+h1 {
+  font-family: "Jaini", system-ui;
+  font-weight: 400;
+  font-size: 40px;
+  font-style: normal;
+  text-align: center;
+  color: #b53fca; /* Темно-фіолетовий, але можеш змінити */
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
 
 .hero {
-  /* display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; */
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-
-  background: linear-gradient(
-      217deg,
-      rgba(239, 180, 233, 0.8),
-      rgba(153, 142, 151, 0) 70.71%
-    ),
-    linear-gradient(127deg, rgba(217, 186, 226, 0.8), rgba(0, 255, 0, 0) 70.71%),
-    linear-gradient(336deg, rgba(246, 183, 234, 0.8), rgba(0, 0, 255, 0) 70.71%);
-  padding: 40px;
-  border: 3px solid #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  gap: 20px !important;
+  width: 90% !important;
+  max-width: 1200px !important;
+  padding: 30px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 15px !important;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1) !important;
 }
-/*Here is starts our modules*/
+
 .quiz-container {
   display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
   justify-content: center;
 }
 
-.actions {
-  margin-top: 10px;
+.quiz-card-item {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
 }
 .quiz-card {
-  display: flex;
-  flex-direction: row;
-  position: relative;
   background: white;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  width: 250px;
-  text-align: left;
-}
-/* .quiz-card-item {
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+  width: 100%;
+  /*max-width: 450px; Фіксована ширина */
+  min-height: 180px; /* Щоб всі картки були однакової висоти */
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-} */
-.menu-icon {
-  cursor: pointer;
-  font-size: 18px;
+  flex-direction: column;
+  position: relative; /* Для кнопки меню */
 }
+
+.quiz-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Меню-кнопка (⋮) */
+.quiz-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.3s ease-in-out;
+}
+
+.quiz-button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Дропдаун меню */
 .dropdown-menu {
   display: none;
   position: absolute;
   top: 40px;
   right: 10px;
   background: white;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   overflow: hidden;
   z-index: 10;
   font-size: 14px;
-}
-.dropdown-menu ul {
-  list-style: none;
-  margin: 0;
-  padding: 5px 0;
-}
-.dropdown-menu li {
-  padding: 8px 15px;
-  cursor: pointer;
-  text-align: left;
-}
-.dropdown-menu li:hover {
-  background: #f0f0f0;
-}
-
-button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
 .dropdown-menu.menu-visible {
   display: block;
 }
 
-/*тимчасові стилі для кнопки*/
-.button-container {
-  text-align: center; /* Центруємо кнопку горизонтально */
-  margin-top: 20px; /* Додаємо відступ зверху */
+.dropdown-menu ul {
+  list-style: none;
+  padding: 10px;
+  margin: 0;
 }
 
-#create-questionnaire-button {
-  padding: 10px 20px;
-  font-size: 16px;
+.dropdown-menu li {
+  padding: 8px 15px;
   cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
+.dropdown-menu li:hover {
+  background: #f5f5f5;
+}
+
+/* Кнопка "Створити квіз" */
+.button-container {
   margin-top: 20px;
 }
 
-.pagination-button {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  padding: 5px 10px;
-  margin: 2px;
+#create-questionnaire-button {
+  background: #4cd3dc;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+#create-questionnaire-button:hover {
+  background: #d0a4dc;
+}
+
+/* ПАГІНАЦІЯ */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.pagination-button {
+  background: #ffffff;
+  color: #58a7bf;
+  border: 2px solid #3ac4df;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-weight: bold;
+}
+
+.pagination-button:hover {
+  background: #cf9edf;
+  color: white;
 }
 
 .pagination-button.active {
-  background-color: #007bff;
+  background: #7bebf6;
   color: white;
-  font-weight: bold;
+  border: 2px solid #41dff1;
 }

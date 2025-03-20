@@ -15,81 +15,95 @@ document.addEventListener("DOMContentLoaded", () => {
 
   heroSection.after(paginationContainer);
 
-  function fetchQuestionnaires(page = 1) {
-    heroSection.innerHTML = "<p>Завантаження...</p>";
+  async function fetchQuestionnaires(page = 1) {
+    heroSection.innerHTML = "<p>Loading...</p>";
+    heroSection.style.display = "block";
 
-    fetch(
-      `http://localhost:3000/api/questionnaires-with-counts?page=${page}&limit=${limit}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Отримані дані від сервера:", data);
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/questionnaires-with-counts?page=${page}&limit=${limit}`,
+        { cache: "no-store" }
+      );
 
-        if (!Array.isArray(data)) {
-          console.error("Некоректні дані від сервера (очікував масив):", data);
-          heroSection.innerHTML = "<p>Помилка отримання опитувальників.</p>";
-          paginationContainer.innerHTML = "";
-          return;
-        }
+      let data = await response.json();
 
-        heroSection.innerHTML = "";
+      console.log("Received data from the server:", data);
 
-        if (data.length === 0) {
-          heroSection.innerHTML =
-            "<p>Наразі немає доступних опитувальників.</p>";
-          paginationContainer.innerHTML = "";
-          return;
-        }
+      if (!Array.isArray(data.questionnaires)) {
+        console.error(
+          "Incorrect data from the server (expected an array in 'questionnaires'):",
+          data
+        );
+        heroSection.innerHTML = "<p>Error receiving questionnaires.</p>";
+        paginationContainer.innerHTML = "";
+        return;
+      }
 
-        data.forEach((questionnaire, index) => {
-          const quizContainer = document.createElement("div");
-          quizContainer.classList.add("quiz-container");
+      const questionnaires = data.questionnaires;
+      const totalPages = data.totalPages;
+      setupPagination(totalPages, currentPage);
 
-          const quizCard = document.createElement("div");
-          quizCard.classList.add("quiz-card");
-          quizCard.dataset.questionnaireId = questionnaire.id;
+      heroSection.innerHTML = "";
 
-          const quizCardItem = document.createElement("div");
-          quizCardItem.classList.add("quiz-card-item");
-          quizCardItem.innerHTML = `
-            <h3>${questionnaire.title}</h3>
-            <p>${questionnaire.description || "Опису немає"}</p>
-            <p><strong>Кількість питань:</strong> ${
-              questionnaire.questionsCount
-            }</p>
-          `;
+      if (questionnaires.length === 0) {
+        heroSection.innerHTML =
+          "<p>There are currently no questionnaires available.</p>";
+        paginationContainer.innerHTML = "";
+        return;
+      }
 
-          const quizButton = document.createElement("div");
-          quizButton.classList.add("quiz-button");
-          quizButton.innerHTML = `<span class="menu-icon" data-menu="menu${
-            index + 1
-          }">⋮</span>`;
+      questionnaires.forEach((questionnaire, index) => {
+        const quizContainer = document.createElement("div");
+        quizContainer.classList.add("quiz-container");
 
-          const dropdownMenu = document.createElement("div");
-          dropdownMenu.classList.add("dropdown-menu");
-          dropdownMenu.id = `menu${index + 1}`;
-          dropdownMenu.innerHTML = `
-            <ul>
-              <li data-action="edit" data-id="${questionnaire.id}">Редагувати</li>
-              <li data-action="run" data-id="${questionnaire.id}">Запустити</li>
-              <li data-action="delete" data-id="${questionnaire.id}">Видалити</li>
-            </ul>
-          `;
+        const quizCard = document.createElement("div");
+        quizCard.classList.add("quiz-card");
+        quizCard.dataset.questionnaireId = questionnaire.id;
 
-          quizCard.appendChild(quizCardItem);
-          quizCard.appendChild(quizButton);
-          quizCard.appendChild(dropdownMenu);
-          quizContainer.appendChild(quizCard);
-          heroSection.appendChild(quizContainer);
-        });
+        const quizCardItem = document.createElement("div");
+        quizCardItem.classList.add("quiz-card-item");
+        quizCardItem.innerHTML = `
+          <h3>${questionnaire.title}</h3>
+          <p>${questionnaire.description || "No description"}</p>
+          <p><strong>Amount of questions:</strong> ${
+            questionnaire.questionsCount
+          }</p>
+        `;
 
-        attachMenuEventListeners();
-      })
-      .catch((error) => {
-        console.error("Помилка отримання опитувальників:", error);
-        heroSection.innerHTML = "<p>Помилка завантаження опитувальників.</p>";
+        const quizButton = document.createElement("div");
+        quizButton.classList.add("quiz-button");
+        quizButton.innerHTML = `<span class="menu-icon" data-menu="menu${
+          index + 1
+        }">⋮</span>`;
+
+        const dropdownMenu = document.createElement("div");
+        dropdownMenu.classList.add("dropdown-menu");
+        dropdownMenu.id = `menu${index + 1}`;
+        dropdownMenu.innerHTML = `
+        <ul>
+          <li data-action="edit" data-id="${questionnaire.id}">Edit</li>
+          <li data-action="run" data-id="${questionnaire.id}">Run</li>
+          <li data-action="delete" data-id="${questionnaire.id}">Delete</li>
+        </ul>
+      `;
+
+        quizCard.appendChild(quizCardItem);
+        quizCard.appendChild(quizButton);
+        quizCard.appendChild(dropdownMenu);
+        quizContainer.appendChild(quizCard);
+        heroSection.appendChild(quizContainer);
       });
+
+      attachMenuEventListeners();
+
+      setupPagination(data.totalPages, page);
+    } catch (error) {
+      console.error("Error receiving questionnaires:", error);
+      heroSection.innerHTML = "<p>Error loading questionnaires.</p>";
+    }
   }
+
+  fetchQuestionnaires();
 
   function setupPagination(totalPages, currentPage) {
     const paginationContainer = document.getElementById("pagination-container");
@@ -109,11 +123,10 @@ document.addEventListener("DOMContentLoaded", () => {
       pageButton.addEventListener("click", () => {
         fetchQuestionnaires(i);
       });
+
       paginationContainer.appendChild(pageButton);
     }
   }
-
-  fetchQuestionnaires();
 
   function attachMenuEventListeners() {
     document.querySelectorAll(".menu-icon").forEach((icon) => {
@@ -158,137 +171,78 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  fetchQuestionnaires();
+  function attachMenuEventListeners() {
+    document.querySelectorAll(".menu-icon").forEach((icon) => {
+      icon.addEventListener("click", function (event) {
+        event.stopPropagation();
 
-  fetch("http://localhost:3000/api/questionnaires-with-counts")
-    .then((response) => response.json())
-    .then((questionnaires) => {
-      heroSection.innerHTML = "";
-      if (questionnaires && questionnaires.length > 0) {
-        questionnaires.forEach((questionnaire, index) => {
-          const quizContainer = document.createElement("div");
-          quizContainer.classList.add("quiz-container");
+        let menuId = this.getAttribute("data-menu");
+        let menu = document.getElementById(menuId);
 
-          const quizCard = document.createElement("div");
-          quizCard.classList.add("quiz-card");
-          quizCard.dataset.questionnaireId = questionnaire.id;
-
-          const quizCardItem = document.createElement("div");
-          quizCardItem.classList.add("quiz-card-item");
-          quizCardItem.innerHTML = `
-              <h3>${questionnaire.title}</h3>
-              <p>${questionnaire.description || "Опису немає"}</p>
-              <p><strong>Questions:</strong> ${questionnaire.questionsCount}</p>
-          `;
-
-          const quizButton = document.createElement("div");
-          quizButton.classList.add("quiz-button");
-          quizButton.innerHTML = `<span class="menu-icon" data-menu="menu${
-            index + 1
-          }">⋮</span>`;
-
-          const dropdownMenu = document.createElement("div");
-          dropdownMenu.classList.add("dropdown-menu");
-          dropdownMenu.id = `menu${index + 1}`;
-          dropdownMenu.innerHTML = `
-              <ul>
-                  <li>Edit</li>
-                  <li>Run</li>
-                  <li>Delete</li>
-              </ul>
-          `;
-
-          quizCard.appendChild(quizCardItem);
-          quizCard.appendChild(quizButton);
-          quizCard.appendChild(dropdownMenu);
-          quizContainer.appendChild(quizCard);
-          heroSection.appendChild(quizContainer);
+        document.querySelectorAll(".dropdown-menu").forEach((m) => {
+          if (m !== menu) {
+            m.classList.remove("menu-visible");
+          }
         });
 
-        attachMenuEventListeners();
-      } else {
-        heroSection.innerHTML = "<p>Опитувальники відсутні.</p>";
-      }
-
-      heroSection.style.display = "block";
-    })
-    .catch((error) => {
-      console.error("Помилка завантаження:", error);
-      heroSection.innerHTML = "<p>Помилка завантаження опитувальників.</p>";
-      heroSection.style.display = "block";
+        menu.classList.toggle("menu-visible");
+      });
     });
-});
 
-function attachMenuEventListeners() {
-  document.querySelectorAll(".menu-icon").forEach((icon) => {
-    icon.addEventListener("click", function (event) {
-      event.stopPropagation();
+    document.addEventListener("click", function () {
+      document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+        menu.classList.remove("menu-visible");
+      });
+    });
 
-      let menuId = this.getAttribute("data-menu");
-      let menu = document.getElementById(menuId);
+    document.querySelectorAll(".dropdown-menu ul").forEach((menuList) => {
+      const questionnaireCard = menuList.closest(".quiz-container");
+      const questionnaireId =
+        questionnaireCard.querySelector(".quiz-card").dataset.questionnaireId;
 
-      document.querySelectorAll(".dropdown-menu").forEach((m) => {
-        if (m !== menu) {
-          m.classList.remove("menu-visible");
+      menuList.addEventListener("click", function (event) {
+        const target = event.target;
+
+        if (target.tagName === "LI") {
+          const action = target.textContent;
+          const questionnaireCard = target.closest(".quiz-container");
+
+          if (action === "Edit") {
+            const editUrl = `edit-questionnaire.html?id=${questionnaireId}`;
+            window.location.href = editUrl;
+          } else if (action === "Run") {
+            const runUrl = `run-questionnaire.html?id=${questionnaireId}`;
+            window.location.href = runUrl;
+          } else if (action === "Delete") {
+            handleDeleteQuestionnaire(questionnaireId, questionnaireCard);
+          }
+
+          menuList.closest(".dropdown-menu").classList.remove("menu-visible");
         }
       });
-
-      menu.classList.toggle("menu-visible");
     });
-  });
-
-  document.addEventListener("click", function () {
-    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
-      menu.classList.remove("menu-visible");
-    });
-  });
-
-  document.querySelectorAll(".dropdown-menu ul").forEach((menuList) => {
-    const questionnaireCard = menuList.closest(".quiz-container");
-    const questionnaireId =
-      questionnaireCard.querySelector(".quiz-card").dataset.questionnaireId;
-
-    menuList.addEventListener("click", function (event) {
-      const target = event.target;
-
-      if (target.tagName === "LI") {
-        const action = target.textContent;
-
-        if (action === "Edit") {
-          const editUrl = `edit-questionnaire.html?id=${questionnaireId}`;
-          window.location.href = editUrl;
-        } else if (action === "Run") {
-          const runUrl = `run-questionnaire.html?id=${questionnaireId}`;
-          window.location.href = runUrl;
-        } else if (action === "Delete") {
-          handleDeleteQuestionnaire(questionnaireId, questionnaireCard);
-        }
-
-        menuList.closest(".dropdown-menu").classList.remove("menu-visible");
-      }
-    });
-  });
-}
-
-function handleDeleteQuestionnaire(questionnaireId, questionnaireCard) {
-  if (confirm("Ви впевнені, що хочете видалити цей опитувальник?")) {
-    fetch(`http://localhost:3000/api/questionnaires/${questionnaireId}`, {
-      method: "DELETE",
-    })
-      .then((response) => {
-        if (response.ok) {
-          console.log(
-            `Questionnaire ID ${questionnaireId} deleted successfully.`
-          );
-          questionnaireCard.remove();
-        } else {
-          console.error("Failed to delete questionnaire.");
-          alert("Помилка видалення опитувальника.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting questionnaire:", error);
-        alert("Помилка видалення опитувальника.");
-      });
   }
-}
+
+  function handleDeleteQuestionnaire(questionnaireId, questionnaireCard) {
+    if (confirm("Are you sure you want to delete this questionnaire?")) {
+      fetch(`http://localhost:3000/api/questionnaires/${questionnaireId}`, {
+        method: "DELETE",
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log(
+              `Questionnaire ID ${questionnaireId} deleted successfully.`
+            );
+            questionnaireCard.remove();
+          } else {
+            console.error("Failed to delete questionnaire.");
+            alert("Error deleting a questionnaire.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error deleting questionnaire:", error);
+          alert("Error deleting a questionnaire.");
+        });
+    }
+  }
+});

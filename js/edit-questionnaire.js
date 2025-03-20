@@ -45,9 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     questionTypeSelect.addEventListener("change", () => {
       updateAnswerOptions(
-        questionTypeSelect.value,
+        questionData.type,
         answerOptionsDiv,
-        questionCounter
+        questionCounter,
+        questionData.answers,
+        questionData.correctAnswers
       );
     });
 
@@ -63,7 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateAnswerOptions(
     questionType,
     answerOptionsDiv,
-    questionCounter
+    questionCounter,
+    existingAnswers = [],
+    correctAnswers = []
   ) {
     answerOptionsDiv.innerHTML = "";
 
@@ -71,6 +75,16 @@ document.addEventListener("DOMContentLoaded", () => {
       questionType === "single-choice" ||
       questionType === "multiple-choice"
     ) {
+      existingAnswers.forEach((answerText) => {
+        addAnswerChoiceWithData(
+          answerOptionsDiv,
+          questionType,
+          questionCounter,
+          answerText,
+          correctAnswers
+        );
+      });
+
       const addChoiceButton = document.createElement("button");
       addChoiceButton.textContent = "Додати варіант";
       addChoiceButton.addEventListener("click", () => {
@@ -78,6 +92,86 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       answerOptionsDiv.appendChild(addChoiceButton);
     }
+    // ✅ Додаємо логіку для текстових питань
+    else if (questionType === "text") {
+      const correctAnswerTextContainer = document.createElement("div");
+      correctAnswerTextContainer.classList.add("correct-answer-text-container");
+      correctAnswerTextContainer.innerHTML = `
+          <label for="correct-answer-text-${questionCounter}">Правильна відповідь:</label>
+          <input type="text" id="correct-answer-text-${questionCounter}" 
+                 class="correct-answer-text-input" 
+                 placeholder="Введіть правильну відповідь" 
+                 value="${correctAnswers.length > 0 ? correctAnswers[0] : ""}">
+      `;
+      answerOptionsDiv.appendChild(correctAnswerTextContainer);
+    }
+  }
+
+  function updateQuestionnaire() {
+    const questionnaireData = {
+      title: document.getElementById("quiz-title").value,
+      description: document.getElementById("quiz-description").value,
+      questions: [],
+    };
+
+    const questionDivs = document.querySelectorAll(".question");
+
+    questionDivs.forEach((questionDiv) => {
+      const questionId = questionDiv.dataset.questionId;
+      const questionText = questionDiv.querySelector(".question-text").value;
+      const questionType = questionDiv.querySelector(".question-type").value;
+      const questionData = {
+        id: questionId, // Зберігаємо ID, щоб сервер знав, що оновлювати
+        text: questionText,
+        type: questionType,
+        answers: [],
+        correctAnswers: [],
+      };
+
+      if (
+        questionType === "single-choice" ||
+        questionType === "multiple-choice"
+      ) {
+        const choiceRows = questionDiv.querySelectorAll(".choice-row");
+        choiceRows.forEach((choiceRow) => {
+          const choiceText = choiceRow.querySelector(".choice-text").value;
+          const isCorrectAnswer = choiceRow.querySelector(
+            ".correct-answer-checkbox"
+          ).checked;
+          questionData.answers.push(choiceText);
+          if (isCorrectAnswer) {
+            questionData.correctAnswers.push(choiceText);
+          }
+        });
+      } else if (questionType === "text") {
+        const correctAnswerInput = questionDiv.querySelector(
+          ".correct-answer-text-input"
+        );
+        if (correctAnswerInput) {
+          questionData.correctAnswers.push(correctAnswerInput.value);
+        }
+      }
+
+      questionnaireData.questions.push(questionData);
+    });
+
+    fetch(`http://localhost:3000/api/questionnaires/${questionnaireId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(questionnaireData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        alert("Опитувальник оновлено!");
+        window.location.href = "index.html";
+      })
+      .catch((error) => {
+        console.error("Error updating questionnaire:", error);
+        alert("Помилка оновлення опитувальника.");
+      });
   }
 
   function addAnswerChoice(answerOptionsDiv, questionType, questionCounter) {
@@ -274,21 +368,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (questionData.type === "text") {
       correctAnswerTextContainer.style.display = "block";
 
-      if (
+      console.log(
+        `Правильна відповідь для текстового питання "${questionData.text}":`,
+        questionData.correctAnswers
+      );
+
+      correctAnswerTextInput.value =
         Array.isArray(questionData.correctAnswers) &&
         questionData.correctAnswers.length > 0
-      ) {
-        correctAnswerTextInput.value = questionData.correctAnswers[0];
-      } else {
-        correctAnswerTextInput.value = "";
-      }
+          ? questionData.correctAnswers[0]
+          : "";
     }
 
     questionTypeSelect.addEventListener("change", () => {
+      console.log(
+        `🔎 Відправляємо в updateAnswerOptions() для питання "${questionData.text}":`,
+        questionData.correctAnswers
+      );
       updateAnswerOptions(
-        questionTypeSelect.value,
+        questionData.type,
         answerOptionsDiv,
-        questionCounter
+        questionCounter,
+        questionData.answers,
+        questionData.correctAnswers
       );
 
       correctAnswerTextContainer.style.display =
@@ -305,6 +407,10 @@ document.addEventListener("DOMContentLoaded", () => {
       recalculateQuestionNumbers();
     });
 
+    console.log(
+      `Перевірка correctAnswers для питання "${questionData.text}":`,
+      questionData.correctAnswers
+    );
     if (questionData.answers && questionData.answers.length > 0) {
       questionData.answers.forEach((answerText) => {
         addAnswerChoiceWithData(
@@ -335,7 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
       : "";
 
     choiceRow.innerHTML = `
-        <label class="choice-label">Варіант :</label>
+        <label class="choice-label">Варіант:</label>
         <input type="text" class="choice-text" placeholder="Введіть варіант" value="${answerText}">
         <div class="correct-answer-indicator">
             <label>Правильна відповідь:</label>
@@ -347,6 +453,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <button class="remove-choice-button">Видалити</button>
     `;
+
     answerOptionsDiv.appendChild(choiceRow);
 
     const removeChoiceButton = choiceRow.querySelector(".remove-choice-button");
@@ -359,7 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   addQuestionButton.addEventListener("click", addQuestion);
-  submitButton.addEventListener("click", submitQuestionnaire);
+  submitButton.addEventListener("click", updateQuestionnaire);
 
   loadQuestionnaireForEdit();
 });

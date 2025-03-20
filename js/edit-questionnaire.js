@@ -1,3 +1,5 @@
+import { API_URL } from "../config.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const questionnaireContainer = document.getElementById(
     "questionnaire-container"
@@ -155,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
       questionnaireData.questions.push(questionData);
     });
 
-    fetch(`http://localhost:3000/api/questionnaires/${questionnaireId}`, {
+    fetch(`${API_URL}/api/questionnaires/${questionnaireId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -258,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const method = "POST";
-    const apiUrl = "http://localhost:3000/api/questionnaires";
+    const apiUrl = "${API_URL}/api/questionnaires";
 
     fetch(apiUrl, {
       method: method,
@@ -283,7 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
     questionnaireId = urlParams.get("id");
 
     if (questionnaireId) {
-      fetch(`http://localhost:3000/api/questionnaires/${questionnaireId}/edit`)
+      fetch(`${API_URL}/api/questionnaires/${questionnaireId}/edit`)
         .then((response) => response.json())
         .then((questionnaireData) => {
           console.log("Отримані дані:", questionnaireData);

@@ -1,3 +1,5 @@
+import { API_URL } from "../config.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const questionContainer = document.getElementById("question-container");
   const prevButton = document.getElementById("prev-button");
@@ -22,9 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     questionnaireId = urlParams.get("id");
 
     if (questionnaireId) {
-      fetch(
-        `http://localhost:3000/api/questionnaires/${questionnaireId}/questions`
-      )
+      fetch(`${API_URL}/api/questionnaires/${questionnaireId}/questions`)
         .then((response) => response.json())
         .then((data) => {
           questions = data;
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
       questionData.type === "single-choice" ||
       questionData.type === "multiple-choice"
     ) {
-      fetch(`http://localhost:3000/api/questions/${questionData.id}/answers`)
+      fetch(`${API_URL}/api/questions/${questionData.id}/answers`)
         .then((response) => response.json())
         .then((answerOptions) => {
           answerOptions.forEach((answerText) => {
@@ -175,16 +175,13 @@ document.addEventListener("DOMContentLoaded", () => {
       completionTime: completionTimeFormatted,
     };
 
-    fetch(
-      `http://localhost:3000/api/questionnaires/${questionnaireId}/submit`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      }
-    )
+    fetch(`${API_URL}/api/questionnaires/${questionnaireId}/submit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log("Responses saved:", data);
@@ -215,9 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
     answersDisplay.innerHTML = "";
 
     questions.forEach((question, index) => {
-      fetch(
-        `http://localhost:3000/api/questions/${question.id}/correct-answers`
-      )
+      fetch(`${API_URL}/api/questions/${question.id}/correct-answers`)
         .then((response) => response.json())
         .then((correctAnswers) => {
           const answerDiv = document.createElement("div");

@@ -1,3 +1,5 @@
+import { API_URL } from "../config.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const addQuestionButton = document.getElementById("add-question-button");
   const submitButton = document.getElementById("submit-button");
@@ -190,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const method = "POST";
-    const apiUrl = "http://localhost:3000/api/questionnaires";
+    const apiUrl = "${API_URL}/api/questionnaires";
 
     fetch(apiUrl, {
       method: method,

@@ -1,3 +1,5 @@
+import { API_URL } from "../config.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const heroSection = document.querySelector(".hero");
   heroSection.style.display = "none";
@@ -21,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/questionnaires-with-counts?page=${page}&limit=${limit}`,
+        `${API_URL}/api/questionnaires-with-counts?page=${page}&limit=${limit}`,
         { cache: "no-store" }
       );
 
@@ -225,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleDeleteQuestionnaire(questionnaireId, questionnaireCard) {
     if (confirm("Are you sure you want to delete this questionnaire?")) {
-      fetch(`http://localhost:3000/api/questionnaires/${questionnaireId}`, {
+      fetch(`${API_URL}/api/questionnaires/${questionnaireId}`, {
         method: "DELETE",
       })
         .then((response) => {
